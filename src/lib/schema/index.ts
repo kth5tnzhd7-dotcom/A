@@ -103,7 +103,7 @@ export const websiteFiles = sqliteTable('website_files', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   websiteId: integer('website_id').notNull().references(() => hostedWebsites.id),
   path: text('path').notNull(),
-  content: blob('content'),
+  content: blob('content').notNull(),
   contentType: text('content_type').notNull(),
   size: integer('size').notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -172,7 +172,7 @@ export const emailCampaigns = sqliteTable('email_campaigns', {
   userId: integer('user_id').notNull().references(() => users.id),
   templateId: integer('template_id').references(() => emailTemplates.id),
   subject: text('subject').notNull(),
-  status: text('status').notNull().default('draft'),
+  status: text('status', { enum: ['draft', 'sent', 'scheduled'] }).notNull().default('draft'),
   sentCount: integer('sent_count').notNull().default(0),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
 });
@@ -214,7 +214,28 @@ export const webhooks = sqliteTable('webhooks', {
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
-// Subscriptions (already defined above)
+// Subscriptions
+export const subscriptions = sqliteTable('subscriptions', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => users.id),
+  plan: text('plan').notNull(),
+  status: text('status').notNull(),
+  amount: real('amount').notNull(),
+  currentPeriodStart: integer('current_period_start').notNull(),
+  currentPeriodEnd: integer('current_period_end').notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Transactions
+export const transactions = sqliteTable('transactions', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => users.id),
+  type: text('type').notNull(),
+  amount: real('amount').notNull(),
+  description: text('description'),
+  status: text('status').notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
+});
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
@@ -261,46 +282,4 @@ export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
 
 export const transactionsRelations = relations(transactions, ({ one }) => ({
   user: one(users, { fields: [transactions.userId], references: [users.id] }),
-}));
-
-// Transactions
-export const transactionsRelations = relations(transscriptions, ({ one }) => ({
-  user: one(users, { fields: [subscriptions.userId], references: [users.id] }),
-}));
-
-// Relations
-export const usersRelations = relations(users, ({ many }) => ({
-  customDomains: many(customDomains),
-  shortenedUrls: many(shortenedUrls),
-  smsCampaigns: many(smsCampaigns),
-  hostedWebsites: many(hostedWebsites),
-  telegramBots: many(telegramBots),
-}));
-
-export const customDomainsRelations = relations(customDomains, ({ one }) => ({
-  user: one(users, { fields: [customDomains.userId], references: [users.id] }),
-}));
-
-export const shortenedUrlsRelations = relations(shortenedUrls, ({ one }) => ({
-  user: one(users, { fields: [shortenedUrls.userId], references: [users.id] }),
-  customDomain: one(customDomains, { fields: [shortenedUrls.customDomainId], references: [customDomains.id] }),
-}));
-
-export const smsCampaignsRelations = relations(smsCampaigns, ({ one, many }) => ({
-  user: one(users, { fields: [smsCampaigns.userId], references: [users.id] }),
-  recipients: many(smsRecipients),
-}));
-
-export const hostedWebsitesRelations = relations(hostedWebsites, ({ one, many }) => ({
-  user: one(users, { fields: [hostedWebsites.userId], references: [users.id] }),
-  customDomain: one(customDomains, { fields: [hostedWebsites.customDomainId], references: [customDomains.id] }),
-  files: many(websiteFiles),
-}));
-
-export const telegramBotsRelations = relations(telegramBots, ({ one }) => ({
-  user: one(users, { fields: [telegramBots.userId], references: [users.id] }),
-}));
-
-export const botCommandsRelations = relations(botCommands, ({ one }) => ({
-  bot: one(telegramBots, { fields: [botCommands.botId], references: [telegramBots.id] }),
 }));
