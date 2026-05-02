@@ -29,21 +29,26 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const result = await db.insert(users).values({
+    await db.insert(users).values({
       name,
       email,
       password: hashedPassword,
       credits: 0,
     });
 
+    // Fetch the newly created user
+    const newUser = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
     return NextResponse.json(
-      { id: result.lastInsertRowid, name, email },
+      { id: newUser?.id, name, email },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Signup error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error.message },
       { status: 500 }
     );
   }
