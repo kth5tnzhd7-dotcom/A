@@ -57,14 +57,7 @@ export default function Navigation() {
               </div>
             </div>
           </div>
-          <div className="hidden md:flex items-center space-x-4">
-            <Link href="/login" className="text-gray-400 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-              Sign In
-            </Link>
-            <Link href="/signup" className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm">
-              Sign Up
-            </Link>
-          </div>
+
           <div className="flex md:hidden items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -113,16 +106,7 @@ export default function Navigation() {
               Terms
             </Link>
           </div>
-          <div className="pt-4 pb-3 border-t border-gray-700">
-            <div className="flex items-center px-5 space-x-3">
-              <Link href="/login" className="block text-gray-400 hover:text-white px-3 py-2 rounded-md text-base font-medium">
-                Sign In
-              </Link>
-              <Link href="/signup" className="block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-base font-medium">
-                Sign Up
-              </Link>
-            </div>
-          </div>
+
         </div>
       )}
     </nav>

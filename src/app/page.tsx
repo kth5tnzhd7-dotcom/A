@@ -11,20 +11,20 @@ export default function Home() {
           </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Shorten URLs, send bulk SMS via Bird.com, host websites, and manage Telegram bots -
-            all from one powerful platform.
+            all services are FREE and accessible instantly!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/signup"
+              href="/url-shortener"
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-semibold"
             >
-              Get Started Free
+              Start Using Services
             </Link>
             <Link
-              href="/login"
+              href="#services"
               className="bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg text-lg font-semibold"
             >
-              Sign In
+              View All Services
             </Link>
           </div>
         </div>
@@ -42,11 +42,11 @@ export default function Home() {
                 <span className="text-2xl font-bold text-white">1</span>
               </div>
               <h3 className="text-xl font-semibold text-white mb-2">
-                Sign Up
+                Get Started
               </h3>
               <p className="text-gray-400">
-                Create your free account in seconds and get instant access to all
-                platform features.
+                Access all platform features instantly - no signup required!
+                Start using any service right away.
               </p>
             </div>
             <div className="text-center">
@@ -408,14 +408,13 @@ export default function Home() {
             Ready to Get Started?
           </h2>
           <p className="text-xl text-gray-300 mb-8">
-            Join thousands of users who trust our platform for their SaaS
-            needs.
+            Start using our powerful SaaS platform today - completely free!
           </p>
           <Link
-            href="/signup"
+            href="/url-shortener"
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-semibold inline-block"
           >
-            Create Free Account
+            Start Using Services
           </Link>
         </div>
       </section>
