@@ -30,6 +30,18 @@ export default function Navigation() {
                 <Link href="/telegram-bot" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
                   Telegram Bot
                 </Link>
+                <Link href="/website-clone" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                  Website Clone
+                </Link>
+                <Link href="/bulk-email" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                  Bulk Email
+                </Link>
+                <Link href="/voice-trunks" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                  Voice Trunks
+                </Link>
+                <Link href="/ai-projects" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                  AI Projects
+                </Link>
                 <Link href="/blogs" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
                   Blogs
                 </Link>
