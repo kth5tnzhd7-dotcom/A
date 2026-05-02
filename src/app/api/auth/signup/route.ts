@@ -5,7 +5,6 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { randomInt } from "crypto";
 
-// Store verification codes (in production, use Redis)
 const phoneCodes = new Map<string, { code: string; expires: number; userId: number }>();
 
 export async function POST(request: Request) {
@@ -34,11 +33,8 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
     const userCountry = country || "Unknown";
     const userBrowser = browser || "Unknown";
-
-    // Get device info (in middleware, we'd extract from headers)
     const deviceInfo = `${userBrowser} on ${userCountry}`;
 
-    // Insert user
     await db.insert(users).values({
       name: email.split('@')[0],
       email,
@@ -49,22 +45,14 @@ export async function POST(request: Request) {
       deviceInfo,
       credits: 0,
       walletBalance: 0,
-      emailVerified: 0,
+      emailVerified: false,
+      phoneVerified: false,
     });
 
-    // Fetch the newly created user
     const newUser = await db.query.users.findFirst({
       where: eq(users.email, email),
     });
 
-    // Auto-create wallet for user
-    await db.insert(wallets).values({
-      userId: newUser!.id,
-      balance: 0,
-      currency: "USD",
-    });
-
-    // Generate 6-digit phone verification code if phone provided
     if (phone) {
       const code = randomInt(100000, 999999).toString();
       phoneCodes.set(phone, {
@@ -72,10 +60,7 @@ export async function POST(request: Request) {
         expires: Date.now() + 10 * 60 * 1000,
         userId: newUser!.id,
       });
-
-      // Send SMS via Bird.com (mock for now)
       console.log(`[Exoincs] Phone verification code for ${phone}: ${code}`);
-      console.log(`Send via Bird.com SMS: Your Exoincs verification code: ${code}`);
     }
 
     return NextResponse.json(
@@ -85,7 +70,7 @@ export async function POST(request: Request) {
         requiresPhoneVerification: !!phone,
         message: phone 
           ? "Account created! Verify your phone to continue." 
-          : "Account created! Check your email for verification.",
+          : "Account created successfully!",
       },
       { status: 201 }
     );
@@ -98,5 +83,4 @@ export async function POST(request: Request) {
   }
 }
 
-// Export for use in verify-phone route
 export { phoneCodes };

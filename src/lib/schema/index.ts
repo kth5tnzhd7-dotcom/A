@@ -8,7 +8,14 @@ export const users = sqliteTable('users', {
   email: text('email').notNull().unique(),
   name: text('name').notNull(),
   password: text('password').notNull(),
+  phone: text('phone'),
+  country: text('country').notNull().default('Unknown'),
+  browser: text('browser').notNull().default('Unknown'),
+  deviceInfo: text('device_info'),
   credits: real('credits').notNull().default(0),
+  walletBalance: real('wallet_balance').notNull().default(0),
+  emailVerified: integer('email_verified', { mode: 'boolean' }).notNull().default(false),
+  phoneVerified: integer('phone_verified', { mode: 'boolean' }).notNull().default(false),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
 });
@@ -86,7 +93,7 @@ export const hostedWebsites = sqliteTable('hosted_websites', {
   customDomainId: integer('custom_domain_id').references(() => customDomains.id),
   storageUsed: integer('storage_used').notNull().default(0),
   bandwidthUsed: integer('bandwidth_used').notNull().default(0),
-  status: text('status', { enum: ['active', 'inactive', 'suspended'] }).notNull().default('active'),
+  status: text('status', { enum: ['active', 'suspended', 'deleted'] }).notNull().default('active'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
 });
@@ -109,6 +116,8 @@ export const telegramBots = sqliteTable('telegram_bots', {
   name: text('name').notNull(),
   botUsername: text('bot_username').notNull(),
   token: text('token').notNull(),
+  description: text('description'),
+  logoUrl: text('logo_url'),
   chatId: text('chat_id'),
   customDomainId: integer('custom_domain_id').references(() => customDomains.id),
   webhookUrl: text('webhook_url'),
@@ -127,38 +136,99 @@ export const botCommands = sqliteTable('bot_commands', {
   isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
 });
 
-// Billing / Subscriptions
-export const subscriptions = sqliteTable('subscriptions', {
+// Wallets
+export const wallets = sqliteTable('wallets', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   userId: integer('user_id').notNull().references(() => users.id),
-  plan: text('plan', { enum: ['free', 'basic', 'pro', 'enterprise'] }).notNull(),
-  status: text('status', { enum: ['active', 'cancelled', 'expired'] }).notNull(),
-  amount: real('amount').notNull(),
-  currentPeriodStart: integer('current_period_start', { mode: 'timestamp' }).notNull(),
-  currentPeriodEnd: integer('current_period_end', { mode: 'timestamp' }).notNull(),
+  balance: real('balance').notNull().default(0),
+  currency: text('currency').notNull().default('USD'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
-// Payment transactions
-export const transactions = sqliteTable('transactions', {
+// Voice trunks (Bird.com SIP)
+export const voiceTrunks = sqliteTable('voice_trunks', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   userId: integer('user_id').notNull().references(() => users.id),
-  type: text('type', { enum: ['purchase', 'refund', 'topup'] }).notNull(),
-  amount: real('amount').notNull(),
-  description: text('description'),
-  status: text('status', { enum: ['pending', 'completed', 'failed', 'refunded'] }).notNull(),
+  trunkId: text('trunk_id').notNull(),
+  name: text('name').notNull(),
+  sipUrl: text('sip_url').notNull(),
+  status: text('status').notNull().default('active'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
 });
+
+// Email templates
+export const emailTemplates = sqliteTable('email_templates', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => users.id),
+  name: text('name').notNull(),
+  subject: text('subject').notNull(),
+  content: text('content').notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Email campaigns
+export const emailCampaigns = sqliteTable('email_campaigns', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => users.id),
+  templateId: integer('template_id').references(() => emailTemplates.id),
+  subject: text('subject').notNull(),
+  status: text('status').notNull().default('draft'),
+  sentCount: integer('sent_count').notNull().default(0),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+// AI Projects (Crypto/NFT)
+export const aiProjects = sqliteTable('ai_projects', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => users.id),
+  type: text('type', { enum: ['crypto', 'nft', 'web3'] }).notNull(),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  logoUrl: text('logo_url'),
+  faviconUrl: text('favicon_url'),
+  backgroundUrl: text('background_url'),
+  pages: text('pages', { mode: 'json' }).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Site settings
+export const siteSettings = sqliteTable('site_settings', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => users.id),
+  logoUrl: text('logo_url'),
+  faviconUrl: text('favicon_url'),
+  backgroundUrl: text('background_url'),
+  siteName: text('site_name').notNull().default('Exoincs'),
+  primaryColor: text('primary_color').notNull().default('#3B82F6'),
+  secondaryColor: text('secondary_color').notNull().default('#10B981'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Webhooks
+export const webhooks = sqliteTable('webhooks', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => users.id),
+  url: text('url').notNull(),
+  events: text('events', { mode: 'json' }).notNull(),
+  active: integer('active', { mode: 'boolean' }).notNull().default(true),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+// Subscriptions (already defined above)
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
+  customDomains: many(customDomains),
   shortenedUrls: many(shortenedUrls),
   smsCampaigns: many(smsCampaigns),
   hostedWebsites: many(hostedWebsites),
   telegramBots: many(telegramBots),
-  customDomains: many(customDomains),
   subscriptions: many(subscriptions),
   transactions: many(transactions),
+}));
+
+export const customDomainsRelations = relations(customDomains, ({ one }) => ({
+  user: one(users, { fields: [customDomains.userId], references: [users.id] }),
 }));
 
 export const shortenedUrlsRelations = relations(shortenedUrls, ({ one }) => ({
@@ -175,4 +245,62 @@ export const hostedWebsitesRelations = relations(hostedWebsites, ({ one, many })
   user: one(users, { fields: [hostedWebsites.userId], references: [users.id] }),
   customDomain: one(customDomains, { fields: [hostedWebsites.customDomainId], references: [customDomains.id] }),
   files: many(websiteFiles),
+}));
+
+export const telegramBotsRelations = relations(telegramBots, ({ one }) => ({
+  user: one(users, { fields: [telegramBots.userId], references: [users.id] }),
+}));
+
+export const botCommandsRelations = relations(botCommands, ({ one }) => ({
+  bot: one(telegramBots, { fields: [botCommands.botId], references: [telegramBots.id] }),
+}));
+
+export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
+  user: one(users, { fields: [subscriptions.userId], references: [users.id] }),
+}));
+
+export const transactionsRelations = relations(transactions, ({ one }) => ({
+  user: one(users, { fields: [transactions.userId], references: [users.id] }),
+}));
+
+// Transactions
+export const transactionsRelations = relations(transscriptions, ({ one }) => ({
+  user: one(users, { fields: [subscriptions.userId], references: [users.id] }),
+}));
+
+// Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  customDomains: many(customDomains),
+  shortenedUrls: many(shortenedUrls),
+  smsCampaigns: many(smsCampaigns),
+  hostedWebsites: many(hostedWebsites),
+  telegramBots: many(telegramBots),
+}));
+
+export const customDomainsRelations = relations(customDomains, ({ one }) => ({
+  user: one(users, { fields: [customDomains.userId], references: [users.id] }),
+}));
+
+export const shortenedUrlsRelations = relations(shortenedUrls, ({ one }) => ({
+  user: one(users, { fields: [shortenedUrls.userId], references: [users.id] }),
+  customDomain: one(customDomains, { fields: [shortenedUrls.customDomainId], references: [customDomains.id] }),
+}));
+
+export const smsCampaignsRelations = relations(smsCampaigns, ({ one, many }) => ({
+  user: one(users, { fields: [smsCampaigns.userId], references: [users.id] }),
+  recipients: many(smsRecipients),
+}));
+
+export const hostedWebsitesRelations = relations(hostedWebsites, ({ one, many }) => ({
+  user: one(users, { fields: [hostedWebsites.userId], references: [users.id] }),
+  customDomain: one(customDomains, { fields: [hostedWebsites.customDomainId], references: [customDomains.id] }),
+  files: many(websiteFiles),
+}));
+
+export const telegramBotsRelations = relations(telegramBots, ({ one }) => ({
+  user: one(users, { fields: [telegramBots.userId], references: [users.id] }),
+}));
+
+export const botCommandsRelations = relations(botCommands, ({ one }) => ({
+  bot: one(telegramBots, { fields: [botCommands.botId], references: [telegramBots.id] }),
 }));
