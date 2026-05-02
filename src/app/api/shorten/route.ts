@@ -29,16 +29,16 @@ export async function POST(request: Request) {
     const baseUrl = customDomain || process.env.DEFAULT_SHORT_DOMAIN || 'short.ly';
     const shortUrl = `${baseUrl}/${shortCode}`;
 
-    const expiresAtTimestamp = expiresAt 
-      ? new Date(expiresAt).getTime()
+    const expiresAtDate = expiresAt 
+      ? new Date(expiresAt)
       : undefined;
 
-    const [result] = await db.insert(shortenedUrls).values({
+    const result = await db.insert(shortenedUrls).values({
       userId,
       originalUrl,
       shortCode,
       customDomainId,
-      expiresAt: expiresAtTimestamp,
+      expiresAt: expiresAtDate,
     });
 
     return NextResponse.json({

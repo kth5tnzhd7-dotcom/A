@@ -20,7 +20,7 @@ export default function TermsOfService() {
               1. Acceptance of Terms
             </h2>
             <p className="mb-4">
-              By accessing and using our SaaS platform ("Service"), you agree to be bound by these Terms of Service ("Terms"), our Privacy Policy, and any other terms and conditions that may apply to specific sections of the Service or to products and services available through the Service.
+              By accessing and using our SaaS platform (&quot;Service&quot;), you agree to be bound by these Terms of Service (&quot;Terms&quot;), our Privacy Policy, and any other terms and conditions that may apply to specific sections of the Service or to products and services available through the Service.
             </p>
             <p className="mb-4">
               If you do not agree to all of these Terms, you may not access or use the Service.
@@ -126,7 +126,7 @@ export default function TermsOfService() {
               8. Indemnification
             </h2>
             <p className="mb-4">
-              You agree to defend, indemnify, and hold harmless our company and its licensees and licensors, and their employees, contractors, agents, officers, and directors, from and against any and all claims, demands, expenses, including attorneys' fees, damages, losses, liabilities, (known or unknown), arising out of:
+              You agree to defend, indemnify, and hold harmless our company and its licensees and licensors, and their employees, contractors, agents, officers, and directors, from and against any and all claims, demands, expenses, including attorneys&apos; fees, damages, losses, liabilities, (known or unknown), arising out of:
             </p>
             <ul className="list-disc list-inside space-y-2 mb-4">
               <li>Your use of and access to the Service</li>
@@ -151,7 +151,7 @@ export default function TermsOfService() {
               10. Changes to Terms
             </h2>
             <p className="mb-4">
-              We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material we will provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.
+              We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material we will provide at least 30 days&apos; notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.
             </p>
             <p className="mb-4">
               By continuing to access or use our Service after those revisions become effective, you agree to be bound by the revised terms. If you do not agree to the new terms, please stop using the Service.

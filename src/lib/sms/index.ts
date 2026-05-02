@@ -1,7 +1,7 @@
 import { Twilio } from 'twilio';
 import { db } from '../db';
 import { smsCampaigns, smsRecipients } from '../schema';
-import { sql } from 'drizzle-orm';
+import { sql, eq, and } from 'drizzle-orm';
 
 // Initialize Twilio client
 const twilioClient = new Twilio(
@@ -33,20 +33,20 @@ export class SMSService {
   async createCampaign(input: CreateCampaignInput) {
     const campaign = await db.transaction(async (tx) => {
       // Insert campaign
-      const [campaign] = await tx.insert(smsCampaigns).values({
+      const result = await tx.insert(smsCampaigns).values({
         userId: input.userId,
         name: input.name,
         senderId: input.senderId,
         message: input.message,
         totalRecipients: input.recipients.length,
         status: input.scheduledAt ? 'pending' : 'sending',
-        scheduledAt: input.scheduledAt ? input.scheduledAt.getTime() : undefined,
+        scheduledAt: input.scheduledAt ? input.scheduledAt : undefined,
         cost: input.recipients.length * 0.0075, // $0.0075 per SMS
       });
 
       // Insert recipients
       const recipientValues = input.recipients.map(phone => ({
-        campaignId: campaign.lastInsertRowid as number,
+        campaignId: result.lastInsertRowid as number,
         phoneNumber: phone,
         status: 'pending' as const,
       }));
@@ -54,8 +54,7 @@ export class SMSService {
       await tx.insert(smsRecipients).values(recipientValues);
 
       return {
-        id: campaign.lastInsertRowid as number,
-        ...campaign,
+        id: result.lastInsertRowid as number,
       };
     });
 
@@ -129,7 +128,7 @@ export class SMSService {
         .update(smsCampaigns)
         .set({
           status: 'completed',
-          completedAt: Date.now(),
+          completedAt: new Date(),
         })
         .where(sql`${smsCampaigns.id} = ${campaignId}`);
     }
@@ -157,8 +156,8 @@ export class SMSService {
         .update(smsRecipients)
         .set({
           status: result.status === 'delivered' ? 'delivered' : 'sent',
-          sentAt: Date.now(),
-          ...(result.status === 'delivered' ? { deliveredAt: Date.now() } : {}),
+          sentAt: new Date(),
+          ...(result.status === 'delivered' ? { deliveredAt: new Date() } : {}),
         })
         .where(sql`${smsRecipients.id} = ${recipientId}`);
 

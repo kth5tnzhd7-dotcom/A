@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const [result] = await db.insert(telegramBots).values({
+    const result = await db.insert(telegramBots).values({
       userId,
       name,
       botUsername,

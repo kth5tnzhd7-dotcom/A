@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { TelegramBot } from '@/components/telegram-bot/TelegramBot';
 
 export default function TelegramBotPage() {
@@ -6,9 +7,9 @@ export default function TelegramBotPage() {
       <div className="p-6">
         <div className="max-w-4xl mx-auto">
           <div className="mb-6">
-            <a href="/" className="text-blue-400 hover:text-blue-300">
+            <Link href="/" className="text-blue-400 hover:text-blue-300">
               ← Back to Home
-            </a>
+            </Link>
           </div>
           <TelegramBot />
         </div>

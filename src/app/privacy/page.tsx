@@ -20,7 +20,7 @@ export default function PrivacyPolicy() {
               1. Introduction
             </h2>
             <p className="mb-4">
-              This Privacy Policy describes how our SaaS platform ("we", "our", or "us") collects, uses, and protects your information when you use our services including URL shortening, bulk SMS, website hosting, and Telegram bot hosting.
+              This Privacy Policy describes how our SaaS platform (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) collects, uses, and protects your information when you use our services including URL shortening, bulk SMS, website hosting, and Telegram bot hosting.
             </p>
             <p className="mb-4">
               By using our services, you agree to the collection and use of information in accordance with this policy.
@@ -149,7 +149,7 @@ export default function PrivacyPolicy() {
               9. Changes to This Privacy Policy
             </h2>
             <p className="mb-4">
-              We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.
+              We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the &quot;Last updated&quot; date.
             </p>
           </section>
           

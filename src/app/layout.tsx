@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,38 +34,38 @@ export default function RootLayout({
             <div className="flex justify-between h-16">
               <div className="flex">
                 <div className="flex-shrink-0 flex items-center">
-                  <a href="/" className="text-xl font-bold text-white">
+                  <Link href="/" className="text-xl font-bold text-white">
                     SaaS Platform
-                  </a>
+                  </Link>
                 </div>
                 <div className="hidden md:block">
                   <div className="ml-10 flex items-baseline space-x-4">
-                    <a href="/url-shortener" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                    <Link href="/url-shortener" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
                       URL Shortener
-                    </a>
-                    <a href="/bulk-sms" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                    </Link>
+                    <Link href="/bulk-sms" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
                       Bulk SMS
-                    </a>
-                    <a href="/website-hosting" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                    </Link>
+                    <Link href="/website-hosting" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
                       Website Hosting
-                    </a>
-                    <a href="/telegram-bot" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                    </Link>
+                    <Link href="/telegram-bot" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
                       Telegram Bot
-                    </a>
-                    <a href="/privacy" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                    </Link>
+                    <Link href="/privacy" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
                       Privacy
-                    </a>
-                    <a href="/terms" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                    </Link>
+                    <Link href="/terms" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
                       Terms
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
               <div className="hidden md:block">
                 <div className="ml-4 flex items-baseline md:ml-6">
-                  <a href="/dashboard" className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded">
+                  <Link href="/dashboard" className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded">
                     Dashboard
-                  </a>
+                  </Link>
                 </div>
               </div>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">

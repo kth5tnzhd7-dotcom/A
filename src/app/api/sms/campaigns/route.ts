@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const cost = recipients.length * 0.0075; // $0.0075 per SMS
 
     const campaign = await db.transaction(async (tx) => {
-      const [result] = await tx.insert(smsCampaigns).values({
+      const result = await tx.insert(smsCampaigns).values({
         userId: userId as number,
         name,
         senderId,
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         failedCount: 0,
         status: scheduledAt ? 'pending' : 'sending',
         cost,
-        scheduledAt: scheduledAt ? new Date(scheduledAt).getTime() : null,
+        scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
       });
 
       const recipientValues = recipients.map((phoneNumber: string) => ({
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 
       await tx.insert(smsRecipients).values(recipientValues);
 
-      return { ...result, id: result.lastInsertRowid };
+      return { id: result.lastInsertRowid as number, status: scheduledAt ? 'pending' : 'sending' };
     });
 
     return NextResponse.json({

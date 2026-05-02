@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     }
 
     const website = await db.transaction(async (tx) => {
-      const [result] = await tx.insert(hostedWebsites).values({
+      const result = await tx.insert(hostedWebsites).values({
         userId,
         name,
         subdomain,
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
         }
       }
 
-      return { ...result, id: websiteId };
+      return { id: websiteId };
     });
 
     return NextResponse.json({
