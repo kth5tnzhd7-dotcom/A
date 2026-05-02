@@ -5,15 +5,15 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { randomInt } from "crypto";
 
-// Store verification codes (in production, use Redis or database)
-const verificationCodes = new Map<string, { code: string; expires: number; name: string }>();
+// Store verification codes (in production, use Redis)
+const phoneCodes = new Map<string, { code: string; expires: number; userId: number }>();
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, password } = body;
+    const { email, password, phone, country, browser } = body;
 
-    if (!name || !email || !password) {
+    if (!email || !password) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -32,38 +32,60 @@ export async function POST(request: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const userCountry = country || "Unknown";
+    const userBrowser = browser || "Unknown";
 
-    // Generate 6-digit verification code
-    const code = randomInt(100000, 999999).toString();
+    // Get device info (in middleware, we'd extract from headers)
+    const deviceInfo = `${userBrowser} on ${userCountry}`;
 
-    // Store code (expires in 10 minutes)
-    verificationCodes.set(email, {
-      code,
-      expires: Date.now() + 10 * 60 * 1000,
-      name,
-    });
-
-    // Save user to database
+    // Insert user
     await db.insert(users).values({
-      name,
+      name: email.split('@')[0],
       email,
       password: hashedPassword,
+      phone: phone || null,
+      country: userCountry,
+      browser: userBrowser,
+      deviceInfo,
       credits: 0,
+      walletBalance: 0,
+      emailVerified: 0,
     });
 
-    // Log the verification email (in production, send via Resend/Mailgun)
-    const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://exoincs.com'}/verify-email?email=${encodeURIComponent(email)}&code=${code}`;
+    // Fetch the newly created user
+    const newUser = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
 
-    console.log(`[Exoincs] Verification email for ${email}:`);
-    console.log(`Subject: Verify your Exoincs account`);
-    console.log(`Body: Welcome to Exoincs, ${name}! Your verification code is: ${code}`);
-    console.log(`Or click: ${verificationLink}`);
+    // Auto-create wallet for user
+    await db.insert(wallets).values({
+      userId: newUser!.id,
+      balance: 0,
+      currency: "USD",
+    });
+
+    // Generate 6-digit phone verification code if phone provided
+    if (phone) {
+      const code = randomInt(100000, 999999).toString();
+      phoneCodes.set(phone, {
+        code,
+        expires: Date.now() + 10 * 60 * 1000,
+        userId: newUser!.id,
+      });
+
+      // Send SMS via Bird.com (mock for now)
+      console.log(`[Exoincs] Phone verification code for ${phone}: ${code}`);
+      console.log(`Send via Bird.com SMS: Your Exoincs verification code: ${code}`);
+    }
 
     return NextResponse.json(
       {
-        message: "Account created! Check your email for verification code.",
+        id: newUser!.id,
         email,
-        requiresVerification: true,
+        requiresPhoneVerification: !!phone,
+        message: phone 
+          ? "Account created! Verify your phone to continue." 
+          : "Account created! Check your email for verification.",
       },
       { status: 201 }
     );
@@ -76,4 +98,5 @@ export async function POST(request: Request) {
   }
 }
 
-export { verificationCodes };
+// Export for use in verify-phone route
+export { phoneCodes };
