@@ -1,0 +1,134 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/api/hosting/websites",
+      "regex": "^/api/hosting/websites(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/hosting/websites(?:/)?$"
+    },
+    {
+      "page": "/api/shorten",
+      "regex": "^/api/shorten(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/shorten(?:/)?$"
+    },
+    {
+      "page": "/api/sms/campaigns",
+      "regex": "^/api/sms/campaigns(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/sms/campaigns(?:/)?$"
+    },
+    {
+      "page": "/api/telegram/bots",
+      "regex": "^/api/telegram/bots(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/telegram/bots(?:/)?$"
+    },
+    {
+      "page": "/bulk-sms",
+      "regex": "^/bulk\\-sms(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/bulk\\-sms(?:/)?$"
+    },
+    {
+      "page": "/dashboard",
+      "regex": "^/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/privacy",
+      "regex": "^/privacy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/privacy(?:/)?$"
+    },
+    {
+      "page": "/telegram-bot",
+      "regex": "^/telegram\\-bot(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/telegram\\-bot(?:/)?$"
+    },
+    {
+      "page": "/terms",
+      "regex": "^/terms(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/terms(?:/)?$"
+    },
+    {
+      "page": "/url-shortener",
+      "regex": "^/url\\-shortener(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/url\\-shortener(?:/)?$"
+    },
+    {
+      "page": "/website-hosting",
+      "regex": "^/website\\-hosting(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/website\\-hosting(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

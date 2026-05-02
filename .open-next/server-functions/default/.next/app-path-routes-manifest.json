@@ -1,0 +1,17 @@
+{
+  "/(dashboard)/dashboard/page": "/dashboard",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/hosting/websites/route": "/api/hosting/websites",
+  "/api/shorten/route": "/api/shorten",
+  "/api/sms/campaigns/route": "/api/sms/campaigns",
+  "/api/telegram/bots/route": "/api/telegram/bots",
+  "/bulk-sms/page": "/bulk-sms",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/",
+  "/privacy/page": "/privacy",
+  "/telegram-bot/page": "/telegram-bot",
+  "/terms/page": "/terms",
+  "/url-shortener/page": "/url-shortener",
+  "/website-hosting/page": "/website-hosting"
+}
