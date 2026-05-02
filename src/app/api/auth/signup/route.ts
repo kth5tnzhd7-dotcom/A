@@ -3,6 +3,10 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
+import { randomInt } from "crypto";
+
+// Store verification codes (in production, use Redis or database)
+const verificationCodes = new Map<string, { code: string; expires: number; name: string }>();
 
 export async function POST(request: Request) {
   try {
@@ -29,6 +33,17 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Generate 6-digit verification code
+    const code = randomInt(100000, 999999).toString();
+
+    // Store code (expires in 10 minutes)
+    verificationCodes.set(email, {
+      code,
+      expires: Date.now() + 10 * 60 * 1000,
+      name,
+    });
+
+    // Save user to database
     await db.insert(users).values({
       name,
       email,
@@ -36,13 +51,20 @@ export async function POST(request: Request) {
       credits: 0,
     });
 
-    // Fetch the newly created user
-    const newUser = await db.query.users.findFirst({
-      where: eq(users.email, email),
-    });
+    // Log the verification email (in production, send via Resend/Mailgun)
+    const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://exoincs.com'}/verify-email?email=${encodeURIComponent(email)}&code=${code}`;
+
+    console.log(`[Exoincs] Verification email for ${email}:`);
+    console.log(`Subject: Verify your Exoincs account`);
+    console.log(`Body: Welcome to Exoincs, ${name}! Your verification code is: ${code}`);
+    console.log(`Or click: ${verificationLink}`);
 
     return NextResponse.json(
-      { id: newUser?.id, name, email },
+      {
+        message: "Account created! Check your email for verification code.",
+        email,
+        requiresVerification: true,
+      },
       { status: 201 }
     );
   } catch (error: any) {
@@ -53,3 +75,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export { verificationCodes };
