@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import JSZip from "jszip";
 
 export async function POST(request: Request) {
   try {
@@ -18,21 +17,38 @@ export async function POST(request: Request) {
 
     const html = await response.text();
 
-    // Create ZIP with HTML and assets
-    const zip = new JSZip();
-    zip.file("index.html", html);
-    zip.file("style.css", `
-      body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-      .header { background: #667eea; color: white; padding: 20px; text-align: center; }
-      .content { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    `);
+    // Create simple HTML file response (ZIP functionality can be added later)
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloned Website</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background: #667eea; color: white; padding: 20px; text-align: center; border-radius: 5px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Website Cloned Successfully</h1>
+        <p>Original URL: ${url}</p>
+        <p>Cloned by Exoincs</p>
+    </div>
+    <div style="border: 1px solid #ccc; padding: 20px; border-radius: 5px;">
+        <h2>Original Content Preview:</h2>
+        <div style="max-height: 400px; overflow: auto; border: 1px solid #eee; padding: 10px;">
+            ${html.substring(0, 5000)}...
+        </div>
+    </div>
+</body>
+</html>`;
 
-    const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
-
-    return new NextResponse(zipBuffer, {
+    return new NextResponse(htmlContent, {
       headers: {
-        "Content-Type": "application/zip",
-        "Content-Disposition": `attachment; filename=website-clone.zip`,
+        "Content-Type": "text/html",
+        "Content-Disposition": `attachment; filename=cloned-website.html`,
       },
     });
   } catch (error: any) {
