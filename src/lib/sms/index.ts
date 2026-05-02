@@ -1,13 +1,12 @@
-import { Twilio } from 'twilio';
 import { db } from '../db';
 import { smsCampaigns, smsRecipients } from '../schema';
 import { sql, eq, and } from 'drizzle-orm';
 
-// Initialize Twilio client
-const twilioClient = new Twilio(
-  process.env.TWILIO_ACCOUNT_SID || '',
-  process.env.TWILIO_AUTH_TOKEN || ''
-);
+interface BirdSMSResponse {
+  id: string;
+  status: string;
+  recipients: number;
+}
 
 export interface CreateCampaignInput {
   userId: number;
@@ -24,6 +23,41 @@ export interface CampaignStats {
   delivered: number;
   failed: number;
   pending: number;
+}
+
+async function sendViaBird(
+  senderId: string,
+  message: string,
+  recipients: string[]
+): Promise<BirdSMSResponse> {
+  const apiKey = process.env.BIRD_API_KEY;
+  const apiUrl = process.env.BIRD_API_URL || 'https://api.bird.com';
+
+  if (!apiKey) {
+    throw new Error('Bird.com API key not configured');
+  }
+
+  const response = await fetch(`${apiUrl}/workspaces/{process.env.BIRD_WORKSPACE_ID}/channels/{senderId}/messages`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      receiver: recipients.map(phone => ({ id: phone })),
+      body: {
+        type: 'text',
+        text: message,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`Bird.com API error: ${error.message || 'Unknown error'}`);
+  }
+
+  return response.json();
 }
 
 export class SMSService {
@@ -67,7 +101,7 @@ export class SMSService {
   }
 
   /**
-   * Process an SMS campaign - send messages to all recipients
+   * Process an SMS campaign - send messages to all recipients via Bird.com
    */
   async processCampaign(campaignId: number) {
     const campaign = await db.query.smsCampaigns.findFirst({
@@ -94,84 +128,53 @@ export class SMSService {
       limit: 100, // Batch size
     });
 
-    // Send messages in parallel with rate limiting
-    const results = await Promise.allSettled(
-      recipients.map((recipient) =>
-        this.sendSMS(campaignId, recipient.id, recipient.phoneNumber, campaign.message)
-      )
-    );
-
-    // Update campaign stats
-    const successCount = results.filter(r => r.status === 'fulfilled').length;
-    const failedCount = results.filter(r => r.status === 'rejected').length;
-
-    await db
-      .update(smsCampaigns)
-      .set({
-        sentCount: sql`${smsCampaigns.sentCount} + ${successCount}`,
-        failedCount: sql`${smsCampaigns.failedCount} + ${failedCount}`,
-      })
-      .where(sql`${smsCampaigns.id} = ${campaignId}`);
-
-    // Check if campaign is complete
-    const remaining = await db.select({ count: sql<number>`count(*)` })
-      .from(smsRecipients)
-      .where(
-        and(
-          eq(smsRecipients.campaignId, campaignId),
-          eq(smsRecipients.status, 'pending')
-        )
+    try {
+      // Send via Bird.com API
+      const phoneNumbers = recipients.map(r => r.phoneNumber);
+      const result = await sendViaBird(
+        campaign.senderId,
+        campaign.message,
+        phoneNumbers
       );
 
-    if (remaining[0].count === 0) {
+      // Update recipients as sent
+      for (const recipient of recipients) {
+        await db
+          .update(smsRecipients)
+          .set({
+            status: 'sent',
+            sentAt: new Date(),
+          })
+          .where(sql`${smsRecipients.id} = ${recipient.id}`);
+      }
+
+      // Update campaign stats
       await db
         .update(smsCampaigns)
         .set({
+          sentCount: sql`${smsCampaigns.sentCount} + ${recipients.length}`,
           status: 'completed',
           completedAt: new Date(),
         })
         .where(sql`${smsCampaigns.id} = ${campaignId}`);
-    }
-
-    return { successCount, failedCount };
-  }
-
-  /**
-   * Send a single SMS message
-   */
-  private async sendSMS(
-    campaignId: number,
-    recipientId: number,
-    phoneNumber: string,
-    message: string
-  ) {
-    try {
-      const result = await twilioClient.messages.create({
-        body: message,
-        from: process.env.TWILIO_PHONE_NUMBER || '',
-        to: phoneNumber,
-      });
-
-      await db
-        .update(smsRecipients)
-        .set({
-          status: result.status === 'delivered' ? 'delivered' : 'sent',
-          sentAt: new Date(),
-          ...(result.status === 'delivered' ? { deliveredAt: new Date() } : {}),
-        })
-        .where(sql`${smsRecipients.id} = ${recipientId}`);
-
-      return result;
     } catch (error) {
-      await db
-        .update(smsRecipients)
-        .set({
-          status: 'failed',
-        })
-        .where(sql`${smsRecipients.id} = ${recipientId}`);
+      // Update failed recipients
+      for (const recipient of recipients) {
+        await db
+          .update(smsRecipients)
+          .set({ status: 'failed' })
+          .where(sql`${smsRecipients.id} = ${recipient.id}`);
+      }
 
-      throw error;
+      await db
+        .update(smsCampaigns)
+        .set({
+          failedCount: sql`${smsCampaigns.failedCount} + ${recipients.length}`,
+        })
+        .where(sql`${smsCampaigns.id} = ${campaignId}`);
     }
+
+    return { successCount: recipients.length, failedCount: 0 };
   }
 
   /**

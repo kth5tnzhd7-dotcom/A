@@ -16,6 +16,10 @@ export default function UrlShortenerPage() {
   const [urls, setUrls] = useState<ShortenedURL[]>([]);
   const [loading, setLoading] = useState(true);
   const [showHistory, setShowHistory] = useState(false);
+  const [originalUrl, setOriginalUrl] = useState("");
+  const [customDomain, setCustomDomain] = useState("");
+  const [domainStatus, setDomainStatus] = useState<"idle" | "checking" | "verified" | "failed">("idle");
+  const [domainMessage, setDomainMessage] = useState("");
 
   useEffect(() => {
     fetch("/api/shorten?userId=1")
@@ -26,6 +30,63 @@ export default function UrlShortenerPage() {
       })
       .catch(() => setLoading(false));
   }, []);
+
+  const verifyDomain = async (domain: string) => {
+    if (!domain) {
+      setDomainStatus("idle");
+      setDomainMessage("");
+      return;
+    }
+
+    setDomainStatus("checking");
+    setDomainMessage("Verifying domain...");
+
+    try {
+      const res = await fetch("/api/verify-domain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain, userId: 1 }),
+      });
+
+      const data = await res.json();
+
+      if (data.verified) {
+        setDomainStatus("verified");
+        setDomainMessage("Domain verified successfully!");
+      } else {
+        setDomainStatus("failed");
+        setDomainMessage(data.message || "Domain verification failed");
+      }
+    } catch {
+      setDomainStatus("failed");
+      setDomainMessage("Failed to verify domain");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!originalUrl) return;
+
+    const res = await fetch("/api/shorten", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        originalUrl,
+        userId: 1,
+        customDomain: customDomain || undefined,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      alert(`Short URL created: ${data.shortUrl}`);
+      setOriginalUrl("");
+      setCustomDomain("");
+      setDomainStatus("idle");
+      setDomainMessage("");
+      window.location.reload();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-neutral-900">
@@ -54,41 +115,74 @@ export default function UrlShortenerPage() {
             <h2 className="text-xl font-semibold text-white mb-4">
               Create Short URL
             </h2>
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                const form = e.target as any;
-                const originalUrl = form.url.value;
-                if (!originalUrl) return;
-
-                const res = await fetch("/api/shorten", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ originalUrl, userId: 1 }),
-                });
-
-                if (res.ok) {
-                  const data = await res.json();
-                  alert(`Short URL created: ${data.shortUrl}`);
-                  form.reset();
-                  // Refresh list
-                  window.location.reload();
-                }
-              }}
-              className="space-y-4"
-            >
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Original URL
                 </label>
                 <input
-                  name="url"
                   type="url"
                   required
+                  value={originalUrl}
+                  onChange={(e) => setOriginalUrl(e.target.value)}
                   placeholder="https://example.com/long-url"
                   className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Custom Domain (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={customDomain}
+                  onChange={(e) => {
+                    setCustomDomain(e.target.value);
+                    setDomainStatus("idle");
+                    setDomainMessage("");
+                  }}
+                  onBlur={() => verifyDomain(customDomain)}
+                  placeholder="yourdomain.com"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {domainStatus !== "idle" && (
+                  <div
+                    className={`mt-2 text-sm ${
+                      domainStatus === "checking"
+                        ? "text-yellow-400"
+                        : domainStatus === "verified"
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}
+                  >
+                    {domainStatus === "checking" && (
+                      <span className="inline-flex items-center gap-2">
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                        {domainMessage}
+                      </span>
+                    )}
+                    {domainStatus === "verified" && "✓ " + domainMessage}
+                    {domainStatus === "failed" && "✗ " + domainMessage}
+                  </div>
+                )}
+              </div>
+
               <button
                 type="submit"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md"
