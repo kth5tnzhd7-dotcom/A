@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Upload, File, Globe, Check, Loader2, Trash2, ExternalLink } from 'lucide-react';
-import { Recharts, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 export interface FileInfo {
   path: string;
@@ -11,7 +11,7 @@ export interface FileInfo {
 }
 
 export interface WebsiteHostingProps {
-  onDeploy?: (files: FileList) => void;
+  onDeploy?: (files: FileList | File[]) => void;
   onAddDomain?: (domain: string) => void;
 }
 

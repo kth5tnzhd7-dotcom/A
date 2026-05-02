@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
     const campaign = await db.transaction(async (tx) => {
       const [result] = await tx.insert(smsCampaigns).values({
-        userId,
+        userId: userId as number,
         name,
         senderId,
         message,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Bot, Send, ToggleLeft, ToggleRight, Plus, ExternalLink, Trash2, Check } from 'lucide-react';
+import { Bot, Send, ToggleLeft, ToggleRight, Plus, ExternalLink, Trash2, Check, Globe } from 'lucide-react';
 
 export interface Command {
   command: string;
