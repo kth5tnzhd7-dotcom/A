@@ -13,7 +13,7 @@ export default function Navigation() {
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/" className="text-xl font-bold text-white">
-                SaaS Platform
+                Exoincs
               </Link>
             </div>
             <div className="hidden md:block ml-10">
@@ -29,6 +29,18 @@ export default function Navigation() {
                 </Link>
                 <Link href="/telegram-bot" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
                   Telegram Bot
+                </Link>
+                <Link href="/blogs" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                  Blogs
+                </Link>
+                <Link href="/api-docs" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                  API Docs
+                </Link>
+                <Link href="/privacy" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                  Privacy
+                </Link>
+                <Link href="/terms" className="hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium text-gray-400">
+                  Terms
                 </Link>
               </div>
             </div>
@@ -75,6 +87,12 @@ export default function Navigation() {
             </Link>
             <Link href="/telegram-bot" className="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">
               Telegram Bot
+            </Link>
+            <Link href="/blogs" className="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">
+              Blogs
+            </Link>
+            <Link href="/api-docs" className="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">
+              API Docs
             </Link>
             <Link href="/privacy" className="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">
               Privacy

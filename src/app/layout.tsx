@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SaaS Platform",
-  description: "All-in-one platform for URL shortening, bulk SMS, website hosting, and Telegram bot hosting",
+  title: "Exoincs - All-in-One SaaS Platform",
+  description: "URL shortening, bulk SMS via Bird.com, website hosting, and Telegram bot hosting",
   viewport: "width=device-width, initial-scale=1",
 };
 
